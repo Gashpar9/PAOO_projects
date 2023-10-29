@@ -1,0 +1,1 @@
+add_library(money_transfer_service STATIC money_transfer_service.cpp)
