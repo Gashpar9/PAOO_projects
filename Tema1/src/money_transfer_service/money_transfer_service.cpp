@@ -2,6 +2,7 @@
 #include <cstring>
 
 #include "money_transfer_service.hpp"
+#include "sha256.hpp"
 
 Account::Account(char* username, char* password) 
 : balance(0)
@@ -9,10 +10,12 @@ Account::Account(char* username, char* password)
     this->username = new char[strlen(username)];
     memcpy(this->username, username, strlen(username));
 
-    this->password = new char[strlen(password)];
-    memcpy(this->password, password, strlen(password));
+    std::string hashedPassword = sha256(password);
+    this->password = new char[hashedPassword.length()];
+    memcpy(this->password, hashedPassword.c_str(), hashedPassword.length());
 
     std::cout << "Account created for " << username << std::endl;
+    std::cout << "Password: " << this->password << std::endl;
 }
 
 Account::~Account() {
@@ -55,7 +58,8 @@ int Account::addBalance(int amount) {
 }
 
 bool Account::verifyPassword(char* password) {
-    return strcmp(this->password, password) == 0;
+    std::string hashedPassword = sha256(password);
+    return (strcmp(this->password, hashedPassword.c_str()) == 0);
 }
 
 MoneyTransferService::MoneyTransferService() {

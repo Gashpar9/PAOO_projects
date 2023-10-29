@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_subdirectory(money_transfer_service)
+add_subdirectory(sha256)
 
 add_executable(MyBank main.cpp)
 
