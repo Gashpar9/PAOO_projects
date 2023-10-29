@@ -4,6 +4,7 @@ class Account {
     private:
         char* username;
         char* password;
+        char* salt;
         int balance;
 
     public:

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstring>
+#include <ctime>
 
 #include "money_transfer_service.hpp"
 #include "sha256.hpp"
@@ -10,7 +11,13 @@ Account::Account(char* username, char* password)
     this->username = new char[strlen(username)];
     memcpy(this->username, username, strlen(username));
 
-    std::string hashedPassword = sha256(password);
+    time_t time;
+    time = std::time(NULL);
+    std::string salt = std::to_string(time);
+    this->salt = new char[strlen(salt.c_str())];
+    memcpy(this->salt, salt.c_str(), strlen(salt.c_str()));
+    
+    std::string hashedPassword = sha256(std::string(password) + salt);
     this->password = new char[hashedPassword.length()];
     memcpy(this->password, hashedPassword.c_str(), hashedPassword.length());
 
@@ -23,6 +30,7 @@ Account::~Account() {
     
     delete this->username;
     delete this->password;
+    delete this->salt;
 }
 
 Account::Account(const Account& other) {
@@ -32,6 +40,9 @@ Account::Account(const Account& other) {
     this->password = new char[strlen(other.password)];
     memcpy(this->password, other.password, strlen(other.password));
 
+    this->salt = new char[strlen(other.salt)];
+    memcpy(this->salt, other.salt, strlen(other.salt));
+
     this->balance = other.balance;
 
     std::cout << "Account copied for " << username << std::endl;
@@ -40,10 +51,12 @@ Account::Account(const Account& other) {
 Account::Account(Account&& other) {
     this->username = other.username;
     this->password = other.password;
+    this->salt = other.salt;
     this->balance = other.balance;
 
     other.username = NULL;
     other.password = NULL;
+    other.salt = NULL;
 
     std::cout << "Account moved for " << username << std::endl;
 }
@@ -58,7 +71,7 @@ int Account::addBalance(int amount) {
 }
 
 bool Account::verifyPassword(char* password) {
-    std::string hashedPassword = sha256(password);
+    std::string hashedPassword = sha256(password + std::string(this->salt));
     return (strcmp(this->password, hashedPassword.c_str()) == 0);
 }
 
@@ -69,6 +82,11 @@ MoneyTransferService::MoneyTransferService() {
 bool MoneyTransferService::transfer(Account* from, Account* to, int amount, char* password) {
     if (!(from->verifyPassword(password))) {
         std::cout << "Password is incorrect" << std::endl;
+        return false;
+    }
+
+    if (amount <= 0) {
+        std::cout << "Amount must be positive" << std::endl;
         return false;
     }
 
