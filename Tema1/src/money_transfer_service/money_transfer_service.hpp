@@ -66,38 +66,6 @@ namespace money_transfer_service {
             std::vector<Bank_Account*> getAccounts();
     };
 
-
-
-
-    /*
-    class Account {
-        private:
-            char* username;
-            char* password;
-            char* salt;
-            int balance;
-
-        public:
-            Account(char* username, char* password);
-            ~Account();
-            Account(const Account& other);
-            Account(Account&& other);
-
-            Account& operator=(const Account& other);
-            Account& operator=(Account&& other);
-
-            bool verifyPassword(char* password);
-            int getBalance();
-            int addBalance(int amount);
-    };
-    */
-
-
-
-
-
-
-
     class MoneyTransferService {
 
         public:
