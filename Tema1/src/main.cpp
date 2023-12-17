@@ -10,8 +10,8 @@ int main() {
     MoneyTransferService mts;
 
     // Create accounts
-    User_Account ua1((char*)"Vlad", (char*)"qwerty");
-    User_Account ua2((char*)"Dragos", (char*)"12345");
+    User_Account ua1((char*)"Vlad", (char*)"qwerty", (char*)"testvlad");
+    User_Account ua2((char*)"Dragos", (char*)"12345", (char*)"testdragos");
 
     Bank_Account* sa1 = new Savings_Account((char*)"Vlad Criste", (char*)"123ABC567890123");
     Bank_Account* sa2 = new Savings_Account((char*)"Dragos Criste", (char*)"123ABC567890124");
@@ -59,6 +59,15 @@ int main() {
     std::cout << "ua1 ba1 balance: " << ua1.getAccounts()[1]->getBalance() << std::endl;
     std::cout << "ua2 sa2 balance: " << ua2.getAccounts()[0]->getBalance() << std::endl;
     std::cout << "ua2 ba2 balance: " << ua2.getAccounts()[1]->getBalance() << std::endl;
+
+    std::cout << "--------------------------" << std::endl;
+
+    //Test smart pointers
+    std::cout << "ua1 smart_pointer_test_field: " << ua1.getSmartPointerTestField() << std::endl;
+    User_Account ua3(ua1);
+    std::cout << "ua3 smart_pointer_test_field: " << ua3.getSmartPointerTestField() << std::endl;
+    User_Account ua4 = std::move(ua3);
+    std::cout << "ua4 smart_pointer_test_field: " << ua4.getSmartPointerTestField() << std::endl;
 
     return 0;
 }

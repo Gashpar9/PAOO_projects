@@ -53,8 +53,9 @@ namespace money_transfer_service {
             char* password;
             char* salt;
             std::vector<Bank_Account*> accounts;
+            std::unique_ptr<char[]> smart_pointer_test_field;
         public:
-            User_Account(char* username, char* password);
+            User_Account(char* username, char* password, char* smart_pointer_test_field);
             ~User_Account();
             User_Account(const User_Account& other);
             User_Account(User_Account&& other);
@@ -65,6 +66,8 @@ namespace money_transfer_service {
             bool verifyPassword(char* password);
             void addAccount(Bank_Account* account);
             std::vector<Bank_Account*> getAccounts();
+
+            char* getSmartPointerTestField();
     };
 
     class MoneyTransferService {

@@ -10,7 +10,7 @@
 
 using namespace money_transfer_service;
 
-User_Account::User_Account(char* username, char* password) 
+User_Account::User_Account(char* username, char* password, char* smart_pointer_test_field) 
 : accounts(std::vector<Bank_Account*>())
 {
     this->username = new char[strlen(username)];
@@ -25,6 +25,9 @@ User_Account::User_Account(char* username, char* password)
     std::string hashedPassword = sha256(std::string(password) + salt);
     this->password = new char[hashedPassword.length()];
     memcpy(this->password, hashedPassword.c_str(), hashedPassword.length());
+
+    this->smart_pointer_test_field = std::make_unique<char[]>(strlen(smart_pointer_test_field));
+    memcpy(this->smart_pointer_test_field.get(), smart_pointer_test_field, strlen(smart_pointer_test_field));
 
     std::cout << "User_Account created for " << username << std::endl;
     std::cout << "Password: " << this->password << std::endl;
@@ -56,6 +59,9 @@ User_Account::User_Account(const User_Account& other) {
         this->accounts.push_back(account_ptr->clone());
     }
 
+    this->smart_pointer_test_field = std::make_unique<char[]>(strlen(other.smart_pointer_test_field.get()));
+    memcpy(this->smart_pointer_test_field.get(), other.smart_pointer_test_field.get(), strlen(other.smart_pointer_test_field.get()));
+
     std::cout << "User_Account copied for " << username << std::endl;
 }
 
@@ -70,6 +76,8 @@ User_Account::User_Account(User_Account&& other)
     other.password = NULL;
     other.salt = NULL;
     other.accounts.clear();
+
+    this->smart_pointer_test_field = std::move(other.smart_pointer_test_field);
 
     std::cout << "User_Account moved for " << username << std::endl;
 }
@@ -124,6 +132,9 @@ std::vector<Bank_Account*> User_Account::getAccounts() {
     return this->accounts;
 }
 
+char* User_Account::getSmartPointerTestField() {
+    return this->smart_pointer_test_field.get();
+}
 //
 
 int Bank_Account::getBalance() {
