@@ -3,6 +3,7 @@
 #include <ctime>
 #include <pthread.h>
 #include <mutex>
+#include <memory>
 
 #include "money_transfer_service.hpp"
 #include "sha256.hpp"
@@ -185,8 +186,8 @@ int Savings_Account::addBalance(int amount) {
 //
 
 Business_Account::Business_Account(char* company_name, char* cif) {
-    this->company_name = new char[strlen(company_name)];
-    memcpy(this->company_name, company_name, strlen(company_name));
+    this->company_name = std::make_unique<char[]>(strlen(company_name));
+    memcpy(this->company_name.get(), company_name, strlen(company_name));
 
     this->cif = new char[strlen(cif)];
     memcpy(this->cif, cif, strlen(cif));
@@ -197,33 +198,31 @@ Business_Account::Business_Account(char* company_name, char* cif) {
 }
 
 Business_Account::~Business_Account() {
-    std::cout << "Business_Account destroyed for " << company_name << std::endl;
+    std::cout << "Business_Account destroyed for " << company_name.get() << std::endl;
     
-    delete this->company_name;
     delete this->cif;
 }
 
 Business_Account::Business_Account(const Business_Account& other) {
-    this->company_name = new char[strlen(other.company_name)];
-    memcpy(this->company_name, other.company_name, strlen(other.company_name));
+    this->company_name = std::make_unique<char[]>(strlen(other.company_name.get()));
+    memcpy(this->company_name.get(), other.company_name.get(), strlen(other.company_name.get()));
 
     this->cif = new char[strlen(other.cif)];
     memcpy(this->cif, other.cif, strlen(other.cif));
 
     this->balance = other.balance;
 
-    std::cout << "Business_Account copied for " << company_name << std::endl;
+    std::cout << "Business_Account copied for " << company_name.get() << std::endl;
 }
 
 Business_Account::Business_Account(Business_Account&& other) {
-    this->company_name = other.company_name;
+    this->company_name = std::move(other.company_name);
     this->cif = other.cif;
     this->balance = other.balance;
 
-    other.company_name = NULL;
     other.cif = NULL;
 
-    std::cout << "Business_Account moved for " << company_name << std::endl;
+    std::cout << "Business_Account moved for " << company_name.get() << std::endl;
 }
 
 Business_Account* Business_Account::clone() {

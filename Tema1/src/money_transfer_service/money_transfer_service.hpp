@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 
 namespace money_transfer_service {
 
@@ -33,7 +34,7 @@ namespace money_transfer_service {
 
     class Business_Account : public Bank_Account {
         private:
-            char* company_name;
+            std::unique_ptr<char[]> company_name;
             char* cif;
         public:
             Business_Account(char* company_name, char* cif);
