@@ -72,5 +72,18 @@ namespace money_transfer_service {
             MoneyTransferService();
 
             bool transfer(User_Account* user, Bank_Account* from, Bank_Account* to, int amount, char* password);
+
+            void startTransferThread(User_Account* user, Bank_Account* from, Bank_Account* to, int amount, char* password);
+    };
+
+    struct TransferThreadArgs {
+        User_Account* user;
+        Bank_Account* from;
+        Bank_Account* to;
+        int amount;
+        char* password;
+
+        public:
+            TransferThreadArgs(User_Account* user, Bank_Account* from, Bank_Account* to, int amount, char* password);
     };
 }

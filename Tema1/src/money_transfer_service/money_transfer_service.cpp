@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cstring>
 #include <ctime>
+#include <pthread.h>
+#include <mutex>
 
 #include "money_transfer_service.hpp"
 #include "sha256.hpp"
@@ -91,6 +93,9 @@ User_Account& User_Account::operator=(const User_Account& other) {
 }
 
 User_Account& User_Account::operator=(User_Account&& other) {
+    if (this == &other) {
+        return *this;
+    }
     this->username = other.username;
     this->password = other.password;
     this->salt = other.salt;
@@ -257,4 +262,55 @@ bool MoneyTransferService::transfer(User_Account* user, Bank_Account* from, Bank
 
     std::cout << "Transfer complete" << std::endl;
     return true;
+}
+
+// Thread example
+
+std::mutex transferMutex;
+
+TransferThreadArgs::TransferThreadArgs(User_Account* user, Bank_Account* from, Bank_Account* to, int amount, char* password) {
+    this->user = user;
+    this->from = from;
+    this->to = to;
+    this->amount = amount;
+    this->password = password;
+}
+
+void* transferThreadSafe(void* args) {
+    TransferThreadArgs* tta = (TransferThreadArgs*) args;
+
+    if (!(tta->user->verifyPassword(tta->password))) {
+        std::cout << "Password is incorrect" << std::endl;
+        return NULL;
+    }
+
+    transferMutex.lock();
+
+    if (tta->amount <= 0) {
+        std::cout << "Amount must be positive" << std::endl;
+        transferMutex.unlock();
+        return NULL;
+    }
+
+    if (tta->from->getBalance() < tta->amount) {
+        std::cout << "Insufficient funds" << std::endl;
+        transferMutex.unlock();
+        return NULL;
+    }
+
+    tta->from->addBalance(-(tta->amount));
+    tta->to->addBalance(tta->amount);
+
+    std::cout << "Transfer complete" << std::endl;
+
+    transferMutex.unlock();
+
+    return NULL;
+}
+
+void MoneyTransferService::startTransferThread(User_Account* user, Bank_Account* from, Bank_Account* to, int amount, char* password) {
+    TransferThreadArgs* tta = new TransferThreadArgs(user, from, to, amount, password);
+    pthread_t thread;
+    pthread_create(&thread, NULL, transferThreadSafe, (void*) tta);
+    pthread_detach(thread);
 }

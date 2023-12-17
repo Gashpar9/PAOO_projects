@@ -1,4 +1,6 @@
 #include <iostream>
+#include <time.h>
+#include <unistd.h>
 
 #include "money_transfer_service.hpp"
 
@@ -22,6 +24,7 @@ int main() {
     ua2.addAccount(sa2);
     ua2.addAccount(ba2);
 
+    /*
     // Test account copy
     User_Account ua3(ua1);
     ua1.getAccounts()[0]->addBalance(100);
@@ -38,6 +41,22 @@ int main() {
 
     // Test transfer
     mts.transfer(&ua2, ua2.getAccounts()[1], ua2.getAccounts()[0], 40, (char*)"12345");
+    std::cout << "ua2 sa2 balance: " << ua2.getAccounts()[0]->getBalance() << std::endl;
+    std::cout << "ua2 ba2 balance: " << ua2.getAccounts()[1]->getBalance() << std::endl;
+
+    ua2 = std::move(ua2);
+    */
+
+    // Test transfer threads
+    ua1.getAccounts()[0]->addBalance(100);
+    ua2.getAccounts()[1]->addBalance(100);
+
+    mts.startTransferThread(&ua1, ua1.getAccounts()[0], ua2.getAccounts()[0], 40, (char*)"qwerty");
+    mts.startTransferThread(&ua2, ua2.getAccounts()[0], ua1.getAccounts()[1], 20, (char*)"12345");
+    usleep(20000);
+
+    std::cout << "ua1 sa1 balance: " << ua1.getAccounts()[0]->getBalance() << std::endl;
+    std::cout << "ua1 ba1 balance: " << ua1.getAccounts()[1]->getBalance() << std::endl;
     std::cout << "ua2 sa2 balance: " << ua2.getAccounts()[0]->getBalance() << std::endl;
     std::cout << "ua2 ba2 balance: " << ua2.getAccounts()[1]->getBalance() << std::endl;
 
